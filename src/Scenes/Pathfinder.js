@@ -25,6 +25,31 @@ class Pathfinder extends Phaser.Scene {
         this.treesLayer = this.map.createLayer("Trees-n-Bushes", this.tileset, 0, 0);
         this.housesLayer = this.map.createLayer("Houses-n-Fences", this.tileset, 0, 0);
 
+        let arrayOfLayers = this.map.layers; 
+
+        this.Tiles = [];
+        for(let y = 0; y < this.map.height; y++){
+            this.Tiles.push([]);
+        }
+        for(let y = 0; y < this.Tiles.length; y++){
+            for(let x = 0; x < this.map.width; x++){
+                this.Tiles[y].push(1);
+            }
+        }
+        for(let y = 0; y < this.Tiles.length; y++){
+            for(let x = 0; x < this.Tiles[y].length; x++){
+                this.Tiles[y][x] = this.groundLayer.getTileAt(x,y).index;
+                if(this.treesLayer.getTileAt(x,y)){
+                    this.Tiles[y][x] = this.treesLayer.getTileAt(x,y).index;
+                }
+                if(this.housesLayer.getTileAt(x,y)){
+                    this.Tiles[y][x] = this.housesLayer.getTileAt(x,y).index;
+                }
+            }
+        }
+        console.log(arrayOfLayers);
+        console.log(this.Tiles);
+
         // Create townsfolk sprite
         // Use setOrigin() to ensure the tile space computations work well
         my.sprite.purpleTownie = this.add.sprite(this.tileXtoWorld(5), this.tileYtoWorld(5), "purple").setOrigin(0,0);
@@ -44,7 +69,8 @@ class Pathfinder extends Phaser.Scene {
         // Pass grid information to EasyStar
         // EasyStar doesn't natively understand what is currently on-screen,
         // so, you need to provide it that information
-        this.finder.setGrid(tinyTownGrid);
+        //this.finder.setGrid(tinyTownGrid);
+        this.finder.setGrid(this.Tiles);
 
         // Tell EasyStar which tiles can be walked on
         this.finder.setAcceptableTiles(walkables);
@@ -159,7 +185,9 @@ class Pathfinder extends Phaser.Scene {
     // uses the value of the cost property to inform EasyStar, using EasyStar's
     // setTileCost(tileID, tileCost) function.
     setCost(tileset) {
-        // TODO: write this function
+        for(let ID in this.tileset.tileProperties){
+            this.finder.setTileCost(ID, this.tileset.tileProperties[ID].cost);
+        }
     }
 
 
